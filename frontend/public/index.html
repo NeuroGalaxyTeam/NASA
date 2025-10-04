@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)file:///C:/Users/mirna/Downloads/yoyo%20(1).html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Quetzalito - Chat</title>
+    <style>
+        :root{ --sidebar-w:320px; --rpanel-w:360px; --gap:16px; }
+
+        /* Reset */
+        *{box-sizing:border-box}
+        html,body,#root{height:100%}
+        body{margin:0;font-family:system-ui,Inter,Roboto,Arial;overflow:hidden;transition:background .4s ease,color .4s ease;}
+        body.dark{background:#000;color:#e6eef8;}
+        body.light{background:#fff;color:#0D0D0D;}
+
+        /* Sidebar */
+        .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);padding:28px 22px;display:flex;flex-direction:column;gap:28px;background:#121940;z-index:6;color:#fff;transition:transform .3s ease;}
+        body.light .sidebar{background:#F29849;color:#0D0D0D;}
+        .sb-collapsed .sidebar{transform:translateX(-100%);}
+        .brand{display:flex;gap:12px;align-items:center;}
+        .logo{width:54px;height:54px;border-radius:50%;overflow:hidden;}
+        .logo img{width:100%;height:100%;object-fit:cover;}
+        .brand-text h1{font-size:20px;margin:0;font-weight:700}
+        .brand-text p{margin:4px 0 0;font-size:13px;opacity:.8}
+
+        /* Card formulario */
+        .card{background:#122459;border:0;padding:20px;border-radius:16px;color:#fff;}
+        body.light .card{background:#BF2604;color:#fff;}
+        .form{display:flex;flex-direction:column;gap:20px;}
+        .form-row{display:flex;flex-direction:column;gap:6px;}
+        .label{font-size:12px;opacity:.9;}
+        .input,.select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:#1B418C;color:#fff;outline:none;font-size:16px;}
+        body.light .input,body.light .select{background:#F27830;color:#fff;border:0;}
+        .actions{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+
+        /* Botones base */
+        .btn{padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-weight:700;transition:all .2s ease;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+        body.dark .btn{background:#1B418C;color:#fff;}
+        body.light .btn{background:#224040;color:#fff;}
+        .btn:hover{filter:brightness(1.1);}
+        .btn:active{transform:scale(.96);}
+        .inline-status{font-size:12px;font-weight:600;}
+
+        /* Botón ícono redondo */
+        .icon-btn{width:46px;height:46px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:20px;}
+
+        /* Main */
+        .main{margin-left:var(--sidebar-w);margin-right:var(--rpanel-w);height:100vh;padding:20px;overflow:hidden;transition:margin .3s ease;}
+        .sb-collapsed .main{margin-left:0;}
+        .rp-collapsed .main{margin-right:0;}
+        .workspace{height:100%;display:flex;gap:var(--gap);align-items:stretch;}
+        .chat-area{flex:1 1 auto;display:flex;}
+
+        /* Chat */
+        .chat-card{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;border-radius:20px;border:1px solid rgba(0,0,0,0.1);}
+        .chat-card::before{content:"";position:absolute;inset:0;z-index:0;background:url('https://wallpapers.com/images/hd/blue-nebula-wallpaper-4k-hd-free-for-desktop-acyfly54avxdmy0g.webp') center/cover no-repeat fixed;transition:background 0.8s ease,opacity 0.8s ease;}
+        body.light .chat-card::before{background:url('https://astrophotons.b-cdn.net/wp-content/uploads/2025/05/nebula-drift-4k-wallpaper.jpg') center/cover no-repeat fixed;}
+
+        /* Header (barra negra) */
+        .chat-header{display:flex;align-items:center;padding:10px 14px;gap:12px;position:relative;z-index:1;background:#0B0B0B;color:#fff;}
+        body.light .chat-header{background:#111;color:#fff;}
+        .brandbar{display:flex;align-items:center;gap:10px;}
+        .brandbar img{width:26px;height:26px;border-radius:6px;object-fit:cover;}
+        .brandbar .title{font-weight:800;font-size:22px;letter-spacing:.2px}
+        .chat-header-left{flex:1}
+
+        /* chat body */
+        .chat-body{flex:1;padding:16px;overflow-y:auto;z-index:1;display:flex;flex-direction:column;}
+        .bubble{margin:8px 0;padding:12px 16px;border-radius:16px;max-width:70%;word-wrap:break-word;}
+        .bubble.bot{background:#121940;align-self:flex-start;color:#fff;}
+        .bubble.user{background:#1B418C;align-self:flex-end;color:#fff;}
+        body.light .bubble.bot{background:#224040;color:#fff;}
+        body.light .bubble.user{background:#F27830;color:#fff;}
+        .chat-input-wrap{display:flex;gap:8px;padding:12px;position:relative;z-index:1;}
+        .chat-input{flex:1;padding:12px;border-radius:12px;outline:none;}
+        body.dark .chat-input{background:#03050D;color:#fff;border:1px solid #1B418C;}
+        body.light .chat-input{background:#fff;color:#0D0D0D;border:1px solid #224040;}
+        .send-btn{padding:12px 18px;border-radius:999px;border:0;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+        body.dark .send-btn{background:#00a3ff;color:#fff;}
+        body.light .send-btn{background:#BF2604;color:#fff;}
+
+        /* Rpanel */
+        .rpanel{position:fixed;top:0;right:0;bottom:0;width:var(--rpanel-w);background:#121940;transition:transform .3s ease;display:flex;flex-direction:column;z-index:5;}
+        body.light .rpanel{background:#F29849;}
+        .rp-collapsed .rpanel{transform:translateX(100%);}
+
+        /* Rpanel header con toolbar (acciones en una sola fila) */
+        .rpanel-header{display:flex;align-items:center;justify-content:center;padding:12px;border-bottom:1px solid rgba(255,255,255,.12);}
+        .actions-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;}
+
+        /* Rpanel contenido */
+        .rpanel-body{flex:1;display:flex;flex-direction:column;gap:16px;padding:12px;}
+
+        /* Pestaña rpanel */
+        .rpanel-handle{position:fixed;top:50%;right:0;transform:translateY(-50%);width:28px;height:84px;border-radius:10px 0 0 10px;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:6;backdrop-filter:blur(2px);}
+        body.light .rpanel-handle{background:rgba(0,0,0,.25)}
+
+        /* Botón visual de tema (redondo) */
+        .theme-btn{width:46px;height:46px;border-radius:50%;padding:0;display:grid;place-items:center;overflow:hidden;}
+        .theme-btn .sky{position:relative;width:36px;height:36px}
+        .theme-btn .sun,.theme-btn .bee,.theme-btn .cloud,.theme-btn .moon,.theme-btn .astro{position:absolute;inset:auto;pointer-events:none;user-select:none;font-size:20px;line-height:1}
+        .theme-btn .sun{left:50%;top:50%;transform:translate(-50%,-50%);}
+        .theme-btn .bee{left:50%;top:50%;transform-origin:-10px -10px;animation:orbit 4s linear infinite;font-size:16px}
+        .theme-btn .cloud{bottom:-2px;right:2px;font-size:16px;opacity:.85}
+        .theme-btn .moon{left:50%;top:50%;transform:translate(-50%,-50%);}
+        .theme-btn .astro{left:50%;top:50%;transform-origin:-10px -10px;animation:orbit 5s linear infinite;font-size:16px}
+        @keyframes orbit{from{transform:rotate(0deg) translate(10px) rotate(0deg)}to{transform:rotate(360deg) translate(10px) rotate(-360deg)}}
+        body.light .theme-btn .sun,body.light .theme-btn .bee,body.light .theme-btn .cloud{opacity:1}
+        body.light .theme-btn .moon,body.light .theme-btn .astro{opacity:0}
+        body.dark .theme-btn .sun,body.dark .theme-btn .bee,body.dark .theme-btn .cloud{opacity:0}
+        body.dark .theme-btn .moon,body.dark .theme-btn .astro{opacity:1}
+
+        /* Ventana inicio (blur) */
+        .gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;}
+        .gate::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter: blur(6px);}
+        .gate-box{position:relative;z-index:1;width:min(520px,92vw);border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);background:#122459;color:#fff;}
+        body.light .gate-box{background:#BF2604;color:#fff}
+        .gate-title{margin:0 0 10px 0;font-weight:800;font-size:18px}
+        .gate-form .input,.gate-form .select{background:#1B418C;color:#fff;border:1px solid rgba(255,255,255,.2)}
+        body.light .gate-form .input, body.light .gate-form .select{background:#F27830;border:0}
+        .gate-actions{display:flex;gap:8px;align-items:center;margin-top:6px}
+        .hidden{display:none !important}
+
+        /* Notas */
+        #notesArea{background:#fff;color:#0D0D0D}
+    </style>
+</head>
+<body class="dark sb-collapsed">
+<aside class="sidebar">
+    <div class="brand">
+        <div class="logo"><img id="sidebarLogo" src="./Quetzalito - Chat_files/0e19878d6dfb3d04113241d8f79fc4c3.jpg" alt="Logo"></div>
+        <div class="brand-text">
+            <h1>BIO SPACE IA</h1>
+            <p id="brandSubtitle">Space Tutor</p>
+        </div>
+    </div>
+    <div class="card">
+        <form class="form" id="profileForm" novalidate="">
+            <div class="form-row">
+                <label class="label" for="role">Role</label>
+                <select id="role" class="select" required="">
+                    <option value="" disabled="" selected="">Select a role…</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="guest">Expert</option>
+                </select>
+            </div>
+            <div class="form-row"><label class="label" for="name">Name</label>
+                <input id="name" class="input" type="text" placeholder="Pepe" minlength="2" required="">
+            </div>
+            <div class="form-row"><label class="label" for="age">Age</label>
+                <input id="age" class="input" type="number" placeholder="20" min="5" max="120" required="">
+            </div>
+            <div class="actions">
+                <button id="saveBtn" class="btn" type="submit" disabled="">Guardar</button>
+            </div>
+        </form>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="workspace">
+        <div class="chat-area">
+            <div class="chat-card">
+                <div class="chat-header">
+                    <div class="brandbar">
+                        <img id="brandBarLogo" src="./Quetzalito - Chat_files/0e19878d6dfb3d04113241d8f79fc4c3.jpg" alt="BioSpace logo">
+                        <div class="title">Bio Space</div>
+                    </div>
+                    <div class="chat-header-left"></div>
+                </div>
+
+                <div class="chat-body" id="chatBody">
+                    <div class="bubble bot" id="greetMsg">Hi, Adrián! How can I help today?</div>
+                    <div class="bubble user">hola</div><div class="bubble bot">¡Hola! Veo que quieres saber sobre "hola". ¿Podrías especificar un poco más sobre qué tema o producto te gustaría obtener información? Estoy aquí para ayudarte.</div><div class="bubble user">me gustaría saber sobre carros</div><div class="bubble bot">Parece que quieres información sobre carros, pero no está relacionado con la base de datos específica de productos de Tidy SC que manejo. ¿Te interesa saber si Tidy SC ofrece productos para la limpieza o mantenimiento de carros? Si es así, puedo buscar en la base de datos y brindarte información detallada. ¿Quieres que haga eso?</div></div>
+                <div class="chat-input-wrap">
+                    <input id="chatInput" class="chat-input" placeholder="Type your question...">
+                    <button id="sendBtn" class="send-btn">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña lateral para rpanel -->
+        <div class="rpanel-handle" id="rpanelHandle">≡</div>
+
+        <aside class="rpanel">
+            <!-- ACCIONES ARRIBA: UNA SOLA FILA -->
+            <div class="rpanel-header">
+                <div class="actions-toolbar">
+                    <button id="restartBtn" class="btn icon-btn" title="Restart session" aria-label="Restart">👤</button>
+                    <button id="newChatBtn" class="btn icon-btn" title="New chat" aria-label="New chat">💬</button>
+                    <button id="clearNotesBtn" class="btn icon-btn" title="Clear notes" aria-label="Clear notes">🗑️</button>
+                    <button id="langToggleBtn" class="btn icon-btn" title="Language" aria-label="Language">🇺🇸</button>
+                    <button id="themeToggleBtn" class="btn theme-btn" title="Theme" aria-label="Theme">
+              <span class="sky">
+                <span class="sun">☀️</span><span class="bee">🐝</span><span class="cloud">☁️</span>
+                <span class="moon">🌕</span><span class="astro">🧑‍🚀</span>
+              </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="rpanel-body">
+                <!-- Notas rápidas -->
+                <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                    <div id="notesTitle" style="font-weight:700; margin-bottom:8px;">Quick notes</div>
+                    <textarea id="notesArea" style="flex:1; border-radius:12px; padding:10px; resize:none;" placeholder="Write here..."></textarea>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<!-- Ventana de inicio -->
+<section class="gate hidden" id="gate">
+    <div class="gate-box">
+        <h3 class="gate-title">Fill your info to start</h3>
+        <form class="form gate-form" id="gateForm" novalidate="">
+            <div class="form-row">
+                <label class="label" for="gRole">Role</label>
+                <select id="gRole" class="select" required="">
+                    <option value="" disabled="" selected="">Select a role…</option>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="guest">Expert</option>
+                </select>
+            </div>
+            <div class="form-row"><label class="label" for="gName">Name</label>
+                <input id="gName" class="input" type="text" placeholder="Alex" minlength="2" required="">
+            </div>
+            <div class="form-row"><label class="label" for="gAge">Age</label>
+                <input id="gAge" class="input" type="number" placeholder="20" min="5" max="120" required="">
+            </div>
+            <div class="gate-actions">
+                <button id="gSave" class="btn" type="submit">Save and continue</button>
+                <span id="gHint" class="inline-status"></span>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    // ===== Util =====
+    const body = document.body;
+    const darkLogo = "https://i.pinimg.com/736x/0e/19/87/0e19878d6dfb3d04113241d8f79fc4c3.jpg";
+    const lightLogo = "https://i.pinimg.com/736x/55/2f/c9/552fc9de128eb8d8829ebd90179ea535.jpg";
+    const brandBarLogo = document.getElementById('brandBarLogo');
+    const sidebarLogo = document.getElementById('sidebarLogo');
+    const profileForm = document.getElementById('profileForm'); // FIX referencia
+
+    // ===== Panel derecho toggle =====
+    document.getElementById('rpanelHandle').addEventListener('click', ()=> body.classList.toggle('rp-collapsed'));
+
+    // ===== Tema =====
+    const themeBtn = document.getElementById('themeToggleBtn');
+    function applyTheme(next){
+        body.classList.remove('light','dark');
+        body.classList.add(next);
+        const url = next==='light' ? lightLogo : darkLogo;
+        brandBarLogo.src = url;
+        sidebarLogo.src = url;
+    }
+    themeBtn.addEventListener('click',()=>{
+        const isLight = body.classList.contains('light');
+        applyTheme(isLight ? 'dark' : 'light');
+    });
+
+    // ===== Idioma (ES/EN) =====
+    const langBtn = document.getElementById('langToggleBtn');
+    let currentLang = 'en';
+    const labels = {
+        es:{brandSubtitle:'Tutor Espacial',greet:'¡Hola! Soy Quetzalito, tu tutor espacial.',
+            role:'Rol',name:'Nombre',age:'Edad',selectRolePh:'Selecciona un rol…',
+            student:'Estudiante', teacher:'Profesor', guest:'Experto',
+            notes:'Notas rápidas',notesPh:'Escribe aquí...',
+            gateTitle:'Completa tus datos para empezar', gateSave:'Guardar y continuar',
+            chatPH:'Escribe tu pregunta...', send:'Enviar'
+        },
+        en:{brandSubtitle:'Space Tutor',greet:"Hi! I’m Quetzalito, your space tutor.",
+            role:'Role',name:'Name',age:'Age',selectRolePh:'Select a role…',
+            student:'Student', teacher:'Teacher', guest:'Expert',
+            notes:'Quick notes',notesPh:'Write here...',
+            gateTitle:'Fill your info to start', gateSave:'Save and continue',
+            chatPH:'Type your question...', send:'Send'
+        }
+    };
+    function applyLang(lang){
+        const t = labels[lang] || labels.en;
+        document.getElementById('brandSubtitle').textContent = t.brandSubtitle;
+        document.getElementById('greetMsg').textContent = t.greet;
+        document.getElementById('chatInput').placeholder = t.chatPH;
+        document.getElementById('sendBtn').textContent = t.send;
+
+        // Sidebar
+        document.querySelector('label[for="role"]').textContent = t.role;
+        document.querySelector('label[for="name"]').textContent = t.name;
+        document.querySelector('label[for="age"]').textContent = t.age;
+        const roleSelect = document.getElementById('role');
+        roleSelect.options[0].textContent = t.selectRolePh;
+        roleSelect.options[1].textContent = t.student;
+        roleSelect.options[2].textContent = t.teacher;
+        roleSelect.options[3].textContent = t.guest;
+
+        // Rpanel
+        document.getElementById('notesTitle').textContent = t.notes;
+        document.getElementById('notesArea').placeholder = t.notesPh;
+
+        // Gate
+        document.querySelector('.gate-title').textContent = t.gateTitle;
+        document.getElementById('gSave').textContent = t.gateSave;
+        document.querySelector('label[for="gRole"]').textContent = t.role;
+        document.querySelector('label[for="gName"]').textContent = t.name;
+        document.querySelector('label[for="gAge"]').textContent = t.age;
+        const gRole = document.getElementById('gRole');
+        gRole.options[0].textContent = t.selectRolePh;
+        gRole.options[1].textContent = t.student;
+        gRole.options[2].textContent = t.teacher;
+        gRole.options[3].textContent = t.guest;
+
+        currentLang = lang;
+        langBtn.textContent = (lang === 'es') ? '🇪🇸' : '🇺🇸';
+    }
+    langBtn.addEventListener('click', ()=> applyLang(currentLang==='es' ? 'en' : 'es'));
+
+    // ===== Persistencia de usuario (mínima) =====
+    const STORAGE_KEY = 'biospace_user_min';
+    function saveUser(u){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); }catch{} }
+    function getUser(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'); }catch{ return null; } }
+    function clearUser(){ try{ localStorage.removeItem(STORAGE_KEY); }catch{} }
+
+    // ===== Gate: valida, copia y cierra + SALUDO POR NOMBRE =====
+    const gate = document.getElementById('gate');
+    const gForm = document.getElementById('gateForm');
+    const gHint = document.getElementById('gHint');
+
+    function copyGateToSidebar(){
+        document.getElementById('role').value = document.getElementById('gRole').value;
+        document.getElementById('name').value = document.getElementById('gName').value.trim();
+        document.getElementById('age').value  = document.getElementById('gAge').value;
+    }
+    function greetUserByName(name){
+        const n = (name && name.trim()) ? name.trim() : (currentLang==='es'?'amig@':'friend');
+        const text = currentLang==='es' ? `¡Hola, ${n}! ¿En qué te ayudo hoy?` : `Hi, ${n}! How can I help today?`;
+        const greet = document.getElementById('greetMsg');
+        if (greet) greet.textContent = text;
+        else {
+            const div = document.createElement('div');
+            div.className='bubble bot'; div.id='greetMsg'; div.textContent=text;
+            document.getElementById('chatBody').prepend(div);
+        }
+    }
+    gForm.addEventListener('input', ()=>{
+        const ok = gForm.checkValidity();
+        document.getElementById('gSave').disabled = !ok;
+        gHint.textContent = ok ? '' : (currentLang==='es' ? 'Completa todos los campos' : 'Complete all fields');
+    });
+    gForm.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        if(!gForm.checkValidity()) return;
+
+        const user = {
+            role: document.getElementById('gRole').value,
+            name: document.getElementById('gName').value.trim(),
+            age:  document.getElementById('gAge').value
+        };
+
+        copyGateToSidebar();
+        saveUser(user);                        // guarda
+        gate.classList.add('hidden');          // cierra ventana
+        body.classList.add('sb-collapsed');    // oculta panel izquierdo
+        greetUserByName(user.name);            // saludo por nombre
+    });
+
+    // Sidebar Save habilitar/deshabilitar
+    profileForm.addEventListener('input', ()=>{
+        document.getElementById('saveBtn').disabled = !profileForm.checkValidity();
+    });
+
+    // ===== Chat con webhook =====
+    //const WEBHOOK_URL = 'https://tidy-n8n.bbjn6v.easypanel.host/webhook/421f1e0e-dea5-416f-8c19-b86450844e75';
+
+
+        function extractReply(payload) {
+        if (typeof payload === "string") return payload;
+        if (Array.isArray(payload)) {
+            const first = payload[0];
+            return first.output || first.reply || first.message || JSON.stringify(first);
+        }
+        if (!payload || typeof payload !== "object") return "Respuesta inválida.";
+        return payload.reply ?? payload.message ?? payload.output ?? JSON.stringify(payload);
+    }
+
+    const chatBody = document.getElementById('chatBody');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function addBubble(text, who='user'){
+        const div = document.createElement('div');
+        div.className = 'bubble ' + (who==='user' ? 'user' : 'bot');
+        div.textContent = text;
+        chatBody.appendChild(div);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    async function botReplyFromWebhook(text){
+
+        const WEBHOOK_URL = "http://localhost:3000/chat";
+        let sessionId = sessionStorage.getItem("chatSessionId");
+        if (!sessionId) {
+            sessionId = crypto.randomUUID();
+            sessionStorage.setItem("chatSessionId", sessionId);
+        }
+
+        try {
+            const res = await fetch(WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId, message: text })
+            });
+            const data = await res.json();
+            addBubble(String(data.response), 'bot');
+        } catch(e) {
+            console.error("bot", e.toString());
+        }
+    }
+
+    function sendMessage(){
+        const text = chatInput.value.trim();
+        if(!text) return;
+        addBubble(text,'user');
+        chatInput.value='';
+        botReplyFromWebhook(text);
+    }
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
+
+    // ===== Acciones =====
+    document.getElementById('rpanelHandle').addEventListener('click', ()=> body.classList.toggle('rp-collapsed'));
+    document.getElementById('newChatBtn').addEventListener('click', ()=>{
+        chatBody.innerHTML = '<div class="bubble bot" id="greetMsg">'+(currentLang==='es'?'¡Hola! Soy Quetzalito, tu tutor espacial.':'Hi! I’m Quetzalito, your space tutor.')+'</div>';
+    });
+    document.getElementById('clearNotesBtn').addEventListener('click', ()=>{ document.getElementById('notesArea').value=''; });
+
+    // Reiniciar sesión
+    const restartBtn = document.getElementById('restartBtn');
+    function resetAll(){
+        clearUser();                        // limpia localStorage
+        applyTheme('dark');
+        applyLang('en');
+        ['role','name','age'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('saveBtn').disabled = true;
+        ['gRole','gName','gAge'].forEach(id=>document.getElementById(id).value='');
+        document.getElementById('gSave').disabled = true; gHint.textContent='';
+        document.getElementById('notesArea').value='';
+        chatBody.innerHTML = '<div class="bubble bot" id="greetMsg">Hi! I’m Quetzalito, your space tutor.</div>';
+        gate.classList.remove('hidden');            // mostrar login de nuevo
+        body.classList.remove('sb-collapsed');      // abrir sidebar
+    }
+    restartBtn.addEventListener('click', resetAll);
+
+    // ===== Estado inicial =====
+    applyTheme('dark');
+    applyLang('en');
+
+    // Autologin si ya hay usuario guardado
+    (function(){
+        const u = getUser();
+        if(u && u.name){
+            const setVal = (id, val)=>{ const el=document.getElementById(id); if(el) el.value = val || ''; };
+            setVal('role', u.role); setVal('name', u.name); setVal('age', u.age);
+            setVal('gRole', u.role); setVal('gName', u.name); setVal('gAge', u.age);
+
+            document.getElementById('gate').classList.add('hidden');
+            body.classList.add('sb-collapsed');
+            greetUserByName(u.name);
+        }
+    })();
+</script>
+
+
+</body></html>

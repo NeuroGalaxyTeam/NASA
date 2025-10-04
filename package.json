@@ -1,0 +1,23 @@
+{
+  "name": "base",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Proyecto base que integra el frontend y backend, incluyendo scripts de orquestación y configuración compartida.",
+  "author": "SMOPS Inc.",
+  "license": "ISC",
+  "scripts": {
+    "publish": "sh ./scripts/publish.sh",
+    "start": "sh ./scripts/start.sh",
+    "stop": "sh ./scripts/stop.sh"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "jsdom": "^27.0.0",
+    "node-fetch": "^3.3.2",
+    "turndown": "^7.2.1"
+  }
+}
