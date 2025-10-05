@@ -1,4 +1,4 @@
-# NASA SpaceApp Challenge
+# NASA SpaceApp Challenge - NeuroGalaxy
 
 Este repositorio es el **proyecto base oficial para los equipos de INTECAP que participan en el NASA SpaceApp Challenge**.  
 Su propósito es proporcionar una estructura organizada y lista para usar, con los componentes técnicos necesarios ya configurados, de manera que cada equipo pueda concentrarse en **desarrollar y presentar su solución** sin invertir tiempo en instalaciones o configuraciones complicadas.  
