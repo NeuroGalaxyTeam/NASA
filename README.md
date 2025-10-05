@@ -1,103 +1,258 @@
-# NASA SpaceApp Challenge - NeuroGalaxy
+# 🚀 Proyecto: Motor de Conocimiento para Biología Espacial
 
-Este repositorio es el **proyecto base oficial para los equipos de INTECAP que participan en el NASA SpaceApp Challenge**.  
-Su propósito es proporcionar una estructura organizada y lista para usar, con los componentes técnicos necesarios ya configurados, de manera que cada equipo pueda concentrarse en **desarrollar y presentar su solución** sin invertir tiempo en instalaciones o configuraciones complicadas.  
-
-El proyecto está compuesto por:  
-- **Aplicación web** → combina la parte visual y la lógica de comunicación con el servidor.  
-- **Entorno de ejecución** → gestionado con Docker y docker-compose, que aseguran que todo funcione igual en cualquier computadora. Aquí también se incluyen las configuraciones del archivo `.env`, donde se centralizan valores como puertos, direcciones o credenciales, para que los servicios puedan levantarse fácilmente.  
-- **Servicios adicionales** → el proyecto puede ampliarse fácilmente con herramientas que soportan funcionalidades de inteligencia artificial, como **OpenSearch** o **Supabase** para manejar bases de datos vectoriales, o **N8N** para crear flujos de automatización sin necesidad de programar desde cero.  
+> Participación en **NASA International Space Apps Challenge**
 
 ---
 
-## 📂 Estructura de carpetas
+## 🧭 Resumen
+Construimos una plataforma que **indexa, busca y visualiza** conocimiento de biología espacial (papers, datasets y guías de misión) para acelerar hipótesis y toma de decisiones. El sistema ofrece un **chat de consulta**, búsqueda semántica y paneles de evidencia trazables a las fuentes.
 
+**Objetivo:** acercar evidencia científica reutilizable a equipos de investigación, educación y divulgación con una experiencia simple, reproducible y portable (Docker).
+
+---
+
+## 🧩 Problema que abordamos
+- La información crítica (papers PMC, reportes de misión, guías) está **dispersa y en múltiples formatos**.
+- Las búsquedas por palabras clave **no bastan**: necesitamos **semántica** y **trazabilidad**.
+- Equipos con recursos limitados requieren **despliegues simples**, reproducibles y con **costos mínimos**.
+
+---
+
+## 💡 Nuestra solución
+- **Ingesta** de PDFs/HTML (PMC/NASA), limpieza y normalización.
+- **Vectorización** (embeddings) para consultas semánticas.
+- **API** para búsqueda híbrida (texto + semántica) y citación de fuentes.
+- **Frontend** con chat, vista de resultados, filtros y panel de evidencia.
+- **Contenedores Docker** para levantar todo local o en la nube (Azure/GCP).
+
+---
+
+## 🏗️ Arquitectura (alto nivel)
 ```
-├── .env                 -> Variables de entorno generales
-├── .gitignore           -> Reglas para excluir archivos de Git
-├── .idea/               -> Configuración de IDE (ejemplo: IntelliJ, WebStorm)
-│   ├── .gitignore       -> Reglas específicas de esta carpeta
-│   └── workspace.xml    -> Configuración de espacio de trabajo
-├── README.md            -> Este documento
-├── docker-compose.yml   -> Orquestador de servicios (FE, BE, DB, N8N, Supabase)
-├── package.json         -> Configuración raíz con scripts globales
-├── docs/                -> Documentación de apoyo del proyecto
-├── scripts/             -> Scripts automatizados
-│   ├── publish.sh       -> Publica el proyecto en el servidor remoto
-│   ├── start.sh         -> Levanta los servicios en local
-│   └── stop.sh          -> Detiene los servicios en local
-├── frontend/            -> Sitio web estático
-│   ├── Dockerfile       -> Imagen de Docker para servir con Nginx
-│   ├── README.md        -> Guía específica del frontend
-│   ├── lib/             -> Librerías adicionales
-│   ├── package.json     -> Configuración opcional del frontend
-│   └── public/          -> Archivos visibles por el navegador
-│       ├── index.html   -> Página principal
-│       ├── css/         -> Estilos
-│       ├── js/          -> Scripts
-│       ├── images/      -> Imágenes
-│       └── assets/      -> Archivos adicionales (ej. PDFs)
-├── backend/             -> API en Node.js
-│   ├── Dockerfile       -> Imagen de Docker para la API
-│   ├── README.md        -> Guía específica del backend
-│   ├── lib/             -> Librerías propias
-│   ├── package.json     -> Dependencias del backend
-│   └── src/             -> Código fuente del servidor (ejemplo: server.js)
-└── security/            -> Archivos sensibles
-    └── .pem             -> Llave privada para conexión al servidor
+┌──────────────┐   PDFs/HTML   ┌───────────────┐       ┌─────────────┐
+│   Fuentes    │──────────────▶│  Ingesta &    │  TXT  │  Embeddings │
+│ (NASA/PMC)   │                │  Limpieza     │──────▶│  + Storage  │
+└──────────────┘                └───────────────┘       └─────┬───────┘
+                                                                │
+                                                     ┌──────────┴─────────┐
+                                                     │      Backend API   │
+                                                     │  (search, cites)   │
+                                                     └──────────┬─────────┘
+                                                                │
+                                                         ┌───────┴───────┐
+                                                         │   Frontend    │
+                                                         │  (chat+UI)    │
+                                                         └───────────────┘
 ```
 
 ---
 
-## ⚡ Scripts disponibles
+## 🛠️ Stack
+- **Backend:** Node.js / Express (API REST)
+- **Búsqueda:** Redis Stack / OpenSearch (opcional)
+- **Vector DB:** Redis (FT + Vector), opcional Supabase pgvector
+- **Frontend:** Vite/React o equivalente (build estático)
+- **Orquestación:** Docker Compose
+- **CI/CD:** GitHub Actions (despliegue a Azure/GCP)
 
-Los scripts simplifican el trabajo con Docker y el despliegue. Se ejecutan desde la raíz con:
+> Nota: este README asume Redis Stack por simplicidad. Puedes cambiar a OpenSearch/Supabase activando servicios en `docker-compose.yml`.
 
+---
+
+## 📦 Requisitos
+- **Windows / macOS / Linux**
+- **Docker Desktop 4.x** (Compose v2)
+- **Node.js 18+** (para scripts locales)
+
+---
+
+## ⚙️ Variables de entorno
+Crea un archivo `.env` en la raíz (no se sube al repo). Ejemplo:
+
+```bash
+# .env (ejemplo)
+NODE_ENV=production
+PORT=3000
+REDIS_URL=redis://redis:6379
+# Para Redis Stack UI (local): http://localhost:8001
+# Si usas OpenSearch/Supabase, añade aquí sus credenciales.
 ```
-npm run <comando>
+
+Incluimos **`.env.example`** para referencia.
+
+---
+
+## ▶️ Ejecución local
+### Opción A — Docker Compose (recomendada)
+```bash
+# Levantar
+docker compose up -d
+
+# Ver estado
+docker compose ps
+
+# Logs
+docker compose logs -f backend
+
+# Bajar
+docker compose down
+```
+> Sugerencia: elimina `version:` y evita `container_name:` en `docker-compose.yml`. Puedes fijar un nombre de proyecto con `name: nasa` en el YAML o usar `docker compose -p nasa ...`.
+
+### Opción B — Scripts npm (si el repo los define)
+```bash
+npm run start   # levanta servicios
+npm run stop    # detiene servicios
 ```
 
-- **start**  
-  Levanta todos los servicios en local usando docker-compose.  
+---
 
-- **stop**  
-  Detiene todos los servicios en local.  
+## 🔌 Endpoints (API)
+- `GET /health` → estado del servicio
+- `POST /search` → { query: string } ⇒ resultados + citas
+- `POST /ingest` → carga/actualiza documentos (según configuración)
 
-- **publish**  
-  Publica el proyecto en el servidor remoto.  
-  Requiere el archivo `.pem` en la carpeta `security/` para autenticar la conexión.  
+> Ver `backend/README.md` para parámetros y ejemplos.
 
 ---
 
-## 🐳 Docker y docker-compose
-
-El proyecto está diseñado para funcionar con **Docker**, lo que asegura que todos los equipos trabajen en un mismo entorno sin importar la computadora.  
-
-- **Frontend** → corre en Nginx en el puerto 80.  
-- **Backend** → corre en Node.js en el puerto 3000.  
-- **OpenSearch** → disponible como motor de búsqueda y base de datos vectorial (puerto 9200).  
-- **Supabase** y **N8N** → ya están listos en el `docker-compose.yml` y pueden activarse comentando o descomentando sus secciones según lo requiera el equipo.  
+## 🧪 Datos de prueba
+- Incluimos un set mínimo de documentos de ejemplo (carpeta `docs/` o script en `scripts/`).
+- Para ingestar localmente, ejecuta el script correspondiente (ver documentación del backend).
 
 ---
 
-## 🔐 Seguridad
+## ☁️ Despliegue en la nube
 
-La carpeta `security/` contiene archivos de seguridad:  
+### Azure (rápido y con costo bajo)
+**Backend → Azure Container Apps** | **Frontend → Azure Static Web Apps**
 
-- **.pem** → llave privada usada para conectarse al servidor remoto.  
-  - Nunca debe compartirse ni subirse a Git.  
-  - Solo se coloca aquí cuando se entregue oficialmente para el despliegue.  
+```bash
+# Login y recurso
+az login
+az group create -n rg-nasa -l eastus
+
+# Registry
+az acr create -n acrnasaxxx -g rg-nasa --sku Basic
+az acr login -n acrnasaxxx
+
+# Backend: build & push
+docker build -t acrnasaxxx.azurecr.io/api:v1 backend
+docker push acrnasaxxx.azurecr.io/api:v1
+
+# Container Apps
+az extension add -n containerapp --upgrade
+az containerapp env create -n env-nasa -g rg-nasa -l eastus
+az containerapp create -n api-nasa -g rg-nasa \
+  --environment env-nasa \
+  --image acrnasaxxx.azurecr.io/api:v1 \
+  --ingress external --target-port 3000 \
+  --registry-server acrnasaxxx.azurecr.io \
+  --env-vars NODE_ENV=production REDIS_URL=${REDIS_URL}
+
+# Frontend: Azure Static Web Apps (desde GitHub, workflow auto)
+```
+
+### Google Cloud (simple y escalable)
+**Backend → Cloud Run** | **Frontend → Firebase Hosting**
+
+```bash
+gcloud auth login
+gcloud config set project <PROJECT_ID>
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com
+
+# Artifact Registry
+gcloud artifacts repositories create repo-nasa --repository-format=docker --location=us-central1
+gcloud auth configure-docker us-central1-docker.pkg.dev
+
+# Backend: build & push
+docker build -t us-central1-docker.pkg.dev/<PROJECT_ID>/repo-nasa/api:v1 backend
+docker push us-central1-docker.pkg.dev/<PROJECT_ID>/repo-nasa/api:v1
+
+# Cloud Run
+gcloud run deploy api-nasa \
+  --image us-central1-docker.pkg.dev/<PROJECT_ID>/repo-nasa/api:v1 \
+  --region us-central1 --allow-unauthenticated \
+  --set-env-vars NODE_ENV=production,REDIS_URL=${REDIS_URL}
+
+# Frontend: Firebase Hosting
+npm i -g firebase-tools
+firebase login
+firebase init hosting   # carpeta de salida: frontend/dist
+npm --prefix frontend run build
+firebase deploy
+```
 
 ---
 
-## 🚀 Flujo de trabajo recomendado
+## 🔄 CI/CD (GitHub Actions)
+Ejemplo mínimo para Cloud Run (`.github/workflows/deploy-cloudrun.yml`):
+```yaml
+name: Deploy Cloud Run
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+      - name: Build & Push
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev -q
+          docker build -t us-central1-docker.pkg.dev/$PROJECT/repo-nasa/api:${GITHUB_SHA} backend
+          docker push us-central1-docker.pkg.dev/$PROJECT/repo-nasa/api:${GITHUB_SHA}
+        env:
+          PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+      - name: Deploy
+        run: |
+          gcloud run deploy api-nasa \
+            --image us-central1-docker.pkg.dev/$PROJECT/repo-nasa/api:${GITHUB_SHA} \
+            --region us-central1 --platform managed \
+            --allow-unauthenticated
+        env:
+          PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+```
 
-1. Clonar el repositorio.
-2. Ejecutar:  
-   - `npm install` → instala dependencias.
-   - `npm run start` → levanta los servicios en local.  
-   - `npm run stop` → detiene los servicios.  
-3. Trabajar en **frontend/public** y **backend/src** según corresponda.  
-4. Cuando el proyecto esté listo:
-   - Colocar el archivo `.pem` en la carpeta `security/`.
-   - Ejecutar `npm run publish` → despliega en el servidor remoto.  
+---
+
+## 📐 Buenas prácticas
+- **No subas** `.env`; usa `.env.example`.
+- Añade `/health` y logs a stdout para observabilidad en nube.
+- Documenta decisiones de diseño en `docs/`.
+- Controla CORS si FE/BE están en dominios distintos.
+- Revisa costos: usa servicios serverless y almacenamiento de bajo costo.
+
+---
+
+## 📊 Roadmap
+- [ ] Conector directo a API de PMC (descarga por lotes)
+- [ ] Deduplicación y chunking adaptativo de PDFs
+- [ ] Reranking híbrido (BM25 + embeddings)
+- [ ] UI de anotaciones y exportación a CSV/JSON
+- [ ] Modo offline con caché local
+
+---
+
+## 🧑‍🤝‍🧑 Equipo
+- Nombre Apellido — rol
+- Nombre Apellido — rol
+- …
+
+Contacto: equipo@example.com
+
+---
+
+## 📝 Licencia
+MIT (o la que defina el equipo). Ver `LICENSE`.
+
+---
+
+## 🙌 Agradecimientos
+- NASA Space Apps
+- Comunidades locales y mentores
+- Fuentes abiertas (PMC, datasets públicos)
+
