@@ -238,16 +238,17 @@ jobs:
 ---
 
 ## 🧑‍🤝‍🧑 Equipo
-- Nombre Apellido — rol
-- Nombre Apellido — rol
-- …
+- Henry Escobar — Backend
+- Adrián Mejía — Backend
+- Rodrigo Salcedo — Backend
+- Lucía López -Fronted
+- Jimmy Morales - Fronted
+- Liseth Pérez - Fronted
 
-Contacto: equipo@example.com
+Contacto: neurogalaxy7@gmail.com
 
 ---
 
-## 📝 Licencia
-MIT (o la que defina el equipo). Ver `LICENSE`.
 
 ---
 
