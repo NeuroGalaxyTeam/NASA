@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 
 # Carga los datos de contexto en OpenSearch
-#ENTRYPOINT ["sh", "-c", "node bin/context.js && exec \"$@\"", "--"]
+ENTRYPOINT ["sh", "-c", "node bin/context.js && exec \"$@\"", "--"]
 
 # CMD queda intacto, define el arranque del servidor
 CMD ["node", "src/server.js"]
