@@ -34,7 +34,7 @@ fi
 docker-compose down
 
 # Eliminar imágenes de backend y frontend, si existen
-docker rmi -f "$(docker images -q "${PWD##*/}-backend")" 2>/dev/null || true
-docker rmi -f "$(docker images -q "${PWD##*/}-frontend")" 2>/dev/null || true
+docker rmi -f "$(docker images -q "nasa-backend")" 2>/dev/null || true
+docker rmi -f "$(docker images -q "nasa-frontend")" 2>/dev/null || true
 
 echo "✅ Servicios detenidos."
