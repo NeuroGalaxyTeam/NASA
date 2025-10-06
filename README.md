@@ -1,257 +1,262 @@
 # 🚀 NASA Space Apps — NeuroGalaxy
 
-Plataforma que **ingesta, indexa, busca y visualiza** conocimiento de biología espacial (papers, datasets y guías de misión) para acelerar hipótesis y decisiones con **búsqueda semántica** y **trazabilidad de fuentes**.
+[👉 Probar la app (demo)](http://ec2-13-58-13-245.us-east-2.compute.amazonaws.com)
 
-- **Frontend:** chat + resultados + panel de evidencia
-- **Backend:** API REST para búsqueda, ingesta y citas
-- **Infra:** ejecutable en local con Docker o Node
+Platform that **ingests, indexes, searches, and visualizes** space biology knowledge (papers, datasets, and mission guides) to speed up hypotheses and decisions with **semantic search** and **source traceability**.
+
+## Basic Usage
+
+- Open the **frontend** in your browser.  
+  - Local: `http://localhost:5173`
+  - **Demo:** `http://ec2-13-58-13-245.us-east-2.compute.amazonaws.com`
+- Type a query in the **chat**.  
+- Review **evidence/citations** attached to each result (when applicable).  
+- To ingest new documents, use the ingestion endpoint or the scripts in `scripts/`.
+
+
+- **Frontend:** chat + results + evidence panel
+- **Backend:** REST API for search, ingestion, and citations
+- **Infra:** runnable locally with Docker or Node
 
 ---
 
-## 📑 Tabla de contenidos
-- [Contexto](#contexto)
-- [Arquitectura](#arquitectura)
+## 📑 Table of Contents
+- [Context](#context)
+- [Architecture](#architecture)
 - [Stack](#stack)
-- [Estructura del repositorio](#estructura-del-repositorio)
-- [Requisitos](#requisitos)
-- [Variables de entorno](#variables-de-entorno)
-- [Guía rápida: correr en local](#guía-rápida-correr-en-local)
-    - [Opción A: Docker (recomendada)](#opción-a-docker-recomendada)
-    - [Opción B: Node (sin Docker)](#opción-b-node-sin-docker)
-- [Uso básico](#uso-básico)
-- [Endpoints principales](#endpoints-principales)
-- [Datos de prueba](#datos-de-prueba)
-- [Despliegue en la nube](#despliegue-en-la-nube)
-- [Solución de problemas](#solución-de-problemas)
+- [Repository Structure](#repository-structure)
+- [Requirements](#requirements)
+- [Environment Variables](#environment-variables)
+- [Quick Start: Run Locally](#quick-start-run-locally)
+    - [Option A: Docker (recommended)](#option-a-docker-recommended)
+    - [Option B: Node (without Docker)](#option-b-node-without-docker)
+- [Basic Usage](#basic-usage)
+- [Main Endpoints](#main-endpoints)
+- [Sample Data](#sample-data)
+- [Cloud Deployment](#cloud-deployment)
+- [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
-- [Equipo](#equipo)
-- [Licencia](#licencia)
-- [Agradecimientos](#agradecimientos)
+- [Team](#team)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
-## Contexto
-Proyecto para **NASA International Space Apps Challenge**. La meta: acercar evidencia científica reutilizable con una UX simple, reproducible y portable.
+## Context
+Project for the **NASA International Space Apps Challenge**. The goal: bring reusable scientific evidence closer with a simple, reproducible, and portable UX.
 
 ---
 
-## Arquitectura
+## Architecture
 
-Fuentes (NASA/PMC) → Ingesta/Limpieza → Texto/Embeddings → Backend API → Frontend (Chat + Evidencia)
+Sources (NASA/PMC) → Ingestion/Cleaning → Text/Embeddings → Backend API → Frontend (Chat + Evidence)
 
-yaml
-Copiar código
-
-- Ingesta: normaliza documentos (PDF/HTML).
-- Indexado: vectorial + palabras clave para búsquedas híbridas.
-- API: búsqueda, cita de fuentes, healthcheck.
-- UI: chat con resultados, snippets y enlaces a evidencias.
+- Ingestion: normalizes documents (PDF/HTML).
+- Indexing: vector + keywords for hybrid search.
+- API: search, source citation, healthcheck.
+- UI: chat with results, snippets, and links to evidence.
 
 ---
 
 ## Stack
 
-- **Backend:** Node.js / Express
-- **Vector/Search:** Redis Stack (FT + Vector) o alternativos (OpenSearch / Postgres+pgvector)
-- **Frontend:** React (Vite)
-- **Contenedores (opcional):** Docker
-- **CI/CD (opcional):** GitHub Actions
+- **Backend:** Node.js / Express  
+- **Vector/Search:** Redis Stack (FT + Vector) or alternatives (OpenSearch / Postgres+pgvector)  
+- **Frontend:** React (Vite)  
+- **Containers (optional):** Docker  
+- **CI/CD (optional):** GitHub Actions
 
 ---
 
-## Estructura del repositorio
+## Repository Structure
 
 .
 ├─ backend/ # API: /search, /ingest, /health, etc.
-├─ frontend/ # UI: chat + panel de evidencia
-├─ docs/ # Documentación y notas técnicas
-├─ scripts/ # utilidades de ingestión/indexado
+├─ frontend/ # UI: chat + evidence panel
+├─ docs/ # Documentation and technical notes
+├─ scripts/ # ingestion/indexing utilities
 ├─ README.md
-└─ .env.example # valores de ejemplo para variables (si existe)
+└─ .env.example # sample values for variables (if present)
 
 yaml
 Copiar código
 
 ---
 
-## Requisitos
+## Requirements
 
 - **Windows / macOS / Linux**
-- **Node.js 18+** (para correr sin Docker y/o scripts)
-- **Docker Desktop 4.x** (opcional, para la Opción A)
+- **Node.js 18+** (to run without Docker and/or scripts)
+- **Docker Desktop 4.x** (optional, for Option A)
 
 ---
 
-## Variables de entorno
+## Environment Variables
 
-Crea un archivo `.env` en la **raíz** del repo (puedes copiar desde `.env.example` si existe):
+Create a `.env` file in the **repo root** (you can copy from `.env.example` if available):
 
-.env (ejemplo)
+.env (example)
 NODE_ENV=development
 PORT=3000
 REDIS_URL=redis://localhost:6379
 
-Si usas OpenSearch/Supabase u otros, agrega sus credenciales aquí.
+If you use OpenSearch/Supabase or others, add their credentials here.
 FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:3000
+
 yaml
 Copiar código
 
-> Ajusta puertos/URLs según tu entorno.
+> Adjust ports/URLs according to your environment.
 
 ---
 
-## Guía rápida: correr en local
+## Quick Start: Run Locally
 
-### Opción A: Docker (recomendada)
+### Option A: Docker (recommended)
 
-1. **Clonar el repo**
-   git clone https://github.com/NeuroGalaxyTeam/NASA.git
-   cd NASA
+1. **Clone the repo**
+git clone https://github.com/NeuroGalaxyTeam/NASA.git
+cd NASA
 
 markdown
 Copiar código
 
 2. **Variables**
-- Copia `.env.example` a `.env` y edítalo, o crea tu `.env`.
+- Copy `.env.example` to `.env` and edit it, or create your `.env`.
 
-3. **Levantar servicios**
-   docker compose up -d
-
-markdown
-Copiar código
-
-4. **Ver estado y logs**
-   docker compose ps
-   docker compose logs -f backend
+3. **Start services**
+docker compose up -d
 
 markdown
 Copiar código
 
-5. **Apagar**
-   docker compose down
+4. **Check status and logs**
+docker compose ps
+docker compose logs -f backend
+
+markdown
+Copiar código
+
+5. **Shut down**
+docker compose down
 
 yaml
 Copiar código
 
-> Nota: Si ves advertencias sobre el atributo `version` en tu compose, puedes remover esa clave en tu archivo local para que no aparezca el warning (Compose v2 ya no la usa). No es obligatorio, solo estético.
+> Note: If you see warnings about the `version` attribute in your compose file, you can remove that key locally so the warning disappears (Compose v2 no longer uses it). Not mandatory—just aesthetic.
 
 ---
 
-### Opción B: Node (sin Docker)
+### Option B: Node (without Docker)
 
 **Backend**
-1. Ir a la carpeta `backend/`
-2. Instalar dependencias:
-   npm install
+1. Go to `backend/`  
+2. Install dependencies:
+npm install
 
 markdown
 Copiar código
-3. Iniciar:
-   npm run dev
+3. Start:
+npm run dev
 
 markdown
 Copiar código
-- Por defecto expone `http://localhost:3000` (ajustable con `PORT`).
+- By default exposes `http://localhost:3000` (adjustable with `PORT`).
 
 **Frontend**
-1. Ir a `frontend/`
-2. Instalar:
-   npm install
+1. Go to `frontend/`  
+2. Install:
+npm install
 
 markdown
 Copiar código
-3. Iniciar:
-   npm run dev
+3. Start:
+npm run dev
 
 yaml
 Copiar código
-- Por defecto expone `http://localhost:5173`.
-- Asegúrate de que el frontend conozca el `BACKEND_URL` (vía `.env` o configuración del proyecto).
+- By default exposes `http://localhost:5173`.  
+- Make sure the frontend knows `BACKEND_URL` (via `.env` or project config).
 
 ---
 
-## Uso básico
+## Basic Usage
 
-- Abre el **frontend** en tu navegador.
-- Escribe una consulta en el **chat**.
-- Revisa **evidencias/citas** adjuntas a cada resultado (cuando aplique).
-- Para ingestar nuevos documentos, usa el endpoint de ingesta o los scripts en `scripts/`.
-
----
-
-## Endpoints principales
-
-- `GET /health` → Estado del servicio
-- `POST /search` → Cuerpo: `{ "query": "string" }` → Devuelve resultados con metadatos y citas
-- `POST /ingest` → Carga/actualiza documentos en el índice
-
-> Revisa `backend/` para detalles y parámetros adicionales.
+- Open the **frontend** in your browser.  
+- Type a query in the **chat**.  
+- Review **evidence/citations** attached to each result (when applicable).  
+- To ingest new documents, use the ingestion endpoint or the scripts in `scripts/`.
 
 ---
 
-## Datos de prueba
+## Main Endpoints
 
-- Carpeta `docs/` y/o utilidades en `scripts/` para cargas rápidas.
-- Puedes empezar con un par de PDFs/HTML públicos y ejecutar el flujo de ingesta.
+- `GET /health` → Service status  
+- `POST /search` → Body: `{ "query": "string" }` → Returns results with metadata and citations  
+- `POST /ingest` → Upload/update documents in the index
+
+> See `backend/` for details and additional parameters.
 
 ---
 
-## Despliegue en la nube
+## Sample Data
 
-Incluye aquí tus URLs una vez publicadas:
+- `docs/` folder and/or utilities in `scripts/` for quick loads.  
+- You can start with a couple of public PDFs/HTML and run the ingestion flow.
 
-- **Frontend (App):** `https://TU-DOMINIO-FRONTEND`
-- **Backend (API):** `https://TU-DOMINIO-API/health`
+---
 
-Rutas sugeridas:
-- **Azure**: Container Apps (backend) + Static Web Apps (frontend)
+## Cloud Deployment
+
+Add your URLs here once published:
+
+- **Frontend (App):** `https://YOUR-FRONTEND-DOMAIN`
+- **Backend (API):** `https://YOUR-API-DOMAIN/health`
+
+Suggested paths:
+- **Azure**: Container Apps (backend) + Static Web Apps (frontend)  
 - **Google Cloud**: Cloud Run (backend) + Firebase Hosting (frontend)
 
-> Cuando tengas las URLs productivas, edítalas en este apartado para que cualquiera pueda acceder.
+> When you have production URLs, edit this section so anyone can access.
 
 ---
 
-## Solución de problemas
+## Troubleshooting
 
-- **El frontend no “ve” al backend**
-- Verifica `BACKEND_URL` en el frontend y CORS en el backend.
-- **Puertos ocupados**
-- Cambia `PORT` en `.env` o los puertos del dev server de Vite.
-- **Redis no responde**
-- Asegura `REDIS_URL` correcto y que el servicio esté corriendo.
-- **Advertencia de Compose sobre `version`**
-- Es seguro eliminar la clave `version` del compose local (en Compose v2 ya no se usa).
+- **Frontend doesn’t “see” the backend**  
+- Check `BACKEND_URL` in the frontend and CORS in the backend.
+- **Ports in use**  
+- Change `PORT` in `.env` or the dev server ports for Vite.
+- **Redis doesn’t respond**  
+- Ensure the correct `REDIS_URL` and that the service is running.
+- **Compose warning about `version`**  
+- It’s safe to remove the `version` key from the local compose file (Compose v2 doesn’t use it).
 
 ---
 
 ## Roadmap
 
-- Conector PMC (descarga por lotes)
-- Deduplicación y chunking adaptativo de PDFs
-- Reranking híbrido (BM25 + embeddings)
-- UI de anotaciones y exportación (CSV/JSON)
-- Modo offline con caché local
+- PMC connector (batch downloads)  
+- Deduplication and adaptive PDF chunking  
+- Hybrid reranking (BM25 + embeddings)  
+- Annotation UI and export (CSV/JSON)  
+- Offline mode with local cache
 
 ---
 
-## Equipo
+## Team
 
-- Henry Escobar -    Backend
-- Rodrigo Salcedo -  Backend
-- Adrián Mejía -     Backend
-- Lucía López -      Fronted
-- Jimmy Morales -    Fronted
-- Lisseth Chilin -   Fronted
-
-
----
-
+- Henry Escobar — Backend  
+- Rodrigo Salcedo — Backend  
+- Adrián Mejía — Backend  
+- Lucía López — Frontend  
+- Jimmy Morales — Frontend  
+- Lisseth Chilin — Frontend
 
 ---
 
-## Agradecimientos
+## Acknowledgments
 
-- NASA Space Apps
-- Comunidades locales y mentores
-- Fuentes abiertas (PMC, datasets públicos)
+- NASA Space Apps  
+- Local communities and mentors  
+- Open sources (PMC, public datasets)
