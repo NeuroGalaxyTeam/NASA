@@ -716,14 +716,34 @@
         els.notes.addEventListener('input', ()=>{ try{ localStorage.setItem(NOTES_KEY, els.notes.value); }catch{} });
 
         // Enviar
-        els.btnSend.addEventListener('click', ()=>{
-            if(!state.user || !state.user.nombre){
-                document.body.classList.add('locked'); disableComposer();
-                els.dlg.classList.remove('hidden'); els.nombre.focus(); return;
+        els.btnSend.addEventListener('click', async () => {
+            if (!state.user || !state.user.nombre) {
+                document.body.classList.add('locked');
+                disableComposer();
+                els.dlg.classList.remove('hidden');
+                els.nombre.focus();
+                return;
             }
-            const txt = (els.input.value||'').trim(); if(!txt) return;
-            addMsg(txt,'user'); els.input.value='';
-            setTimeout(()=> addMsg(i18n[lang].gotIt || 'Got it. Thinking…'),200);
+            const txt = (els.input.value || '').trim();
+            if (!txt) return;
+            addMsg(txt, 'user');
+            els.input.value = '';
+
+            let sessionId = sessionStorage.getItem("chatSessionId");
+            if (!sessionId) {
+                sessionId = crypto.randomUUID();
+                sessionStorage.setItem("chatSessionId", sessionId);
+            }
+
+            const res = await fetch("http://localhost:3000/chat", {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({sessionId, message: txt})
+            });
+            const data = await res.json();
+            addMsg(data.response)
+
+            //setTimeout(() => addMsg(i18n[lang].gotIt || 'Got it. Thinking…'), 200);
         });
         els.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') els.btnSend.click(); });
 
