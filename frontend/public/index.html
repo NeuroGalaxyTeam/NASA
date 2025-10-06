@@ -686,6 +686,30 @@
             });
         }
 
+        /* --- SOLO AÑADIDO: indicador de escritura con puntos suspensivos --- */
+        let typingLine = null;
+        let typingTimer = null;
+
+        function showTyping(){
+            if (typingLine) return;
+            typingLine = makeLine('bot', '<span id="typingDots">.</span>');
+            els.messages.appendChild(typingLine);
+            let n = 1;
+            typingTimer = setInterval(()=>{
+                n = (n % 3) + 1;
+                const span = document.getElementById('typingDots');
+                if (span) span.textContent = '.'.repeat(n);
+            }, 400);
+            requestAnimationFrame(()=>{
+                els.messages.scrollTo({ top: els.messages.scrollHeight, behavior: 'smooth' });
+            });
+        }
+        function hideTyping(){
+            if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
+            if (typingLine) { typingLine.remove(); typingLine = null; }
+        }
+        /* --- FIN AÑADIDO --- */
+
         function renderAvatar(){
             const data = getAvatarAny();
             if(data){ els.avatarImg.src = data; els.avatarImg.style.display = 'block'; els.avatarInitial.style.display = 'none'; }
@@ -715,7 +739,7 @@
         try{ els.notes.value = localStorage.getItem(NOTES_KEY) || ''; }catch{}
         els.notes.addEventListener('input', ()=>{ try{ localStorage.setItem(NOTES_KEY, els.notes.value); }catch{} });
 
-        // Enviar
+        // Enviar  (AÑADIDO: showTyping/hideTyping sin modificar nada más)
         els.btnSend.addEventListener('click', async () => {
             if (!state.user || !state.user.nombre) {
                 document.body.classList.add('locked');
@@ -729,21 +753,30 @@
             addMsg(txt, 'user');
             els.input.value = '';
 
-            let sessionId = sessionStorage.getItem("chatSessionId");
-            if (!sessionId) {
-                sessionId = crypto.randomUUID();
-                sessionStorage.setItem("chatSessionId", sessionId);
+            // Mostrar puntos mientras llega la respuesta
+            showTyping();
+
+            try {
+                let sessionId = sessionStorage.getItem("chatSessionId");
+                if (!sessionId) {
+                    sessionId = crypto.randomUUID();
+                    sessionStorage.setItem("chatSessionId", sessionId);
+                }
+
+                const res = await fetch("http://localhost:3000/chat", {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({sessionId, message: txt})
+                });
+                const data = await res.json();
+
+                // Ocultar puntos y mostrar respuesta
+                hideTyping();
+                addMsg(data.response);
+            } catch (e) {
+                hideTyping();
+                addMsg('Ups, hubo un problema obteniendo la respuesta.', 'bot');
             }
-
-            const res = await fetch("http://localhost:3000/chat", {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({sessionId, message: txt})
-            });
-            const data = await res.json();
-            addMsg(data.response)
-
-            //setTimeout(() => addMsg(i18n[lang].gotIt || 'Got it. Thinking…'), 200);
         });
         els.input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') els.btnSend.click(); });
 
